@@ -14,15 +14,15 @@ import argparse
 if __name__ == '__main__':
     # Process the command line arguments.
     # This might end the program (--help).
-    oParse = argparse.ArgumentParser(prog='gtk_treeview_test', description='Display a treeview control.')
-    oParse.add_argument('-i', '--install', help='Install the program and desktop link.', action='store_true')
-    oParse.add_argument('-u', '--uninstall', help='Uninstall the program.', action='store_true')
-    oArgs = oParse.parse_args()
+    argParse = argparse.ArgumentParser(prog='gtk_treeview_test', description='Display a treeview control.')
+    argParse.add_argument('-i', '--install', help='Install the program and desktop link.', action='store_true')
+    argParse.add_argument('-u', '--uninstall', help='Uninstall the program.', action='store_true')
+    args = argParse.parse_args()
 
-    if oArgs.install:
+    if args.install:
         print('Not implemented.')
 
-    if oArgs.uninstall:
+    if args.uninstall:
         print('Not implemented.')
 
     # Welcome message.
@@ -86,9 +86,9 @@ class CMainWindow():
         }
         self.builder.connect_signals(dic)
 
-        # Get the initial folder.  This is probably from oArgs.
+        # Get the initial folder.  This is probably from args.
         self.folder_name = os.path.dirname(os.path.realpath(__file__))
-        self.ScanFolder()
+        self.scanFolder()
 
         # Move the focus off the toolbar.
         # self.webview.grab_focus()
@@ -162,7 +162,7 @@ class CMainWindow():
 
 
 
-    def ScanFolder(self):
+    def scanFolder(self):
         ''' Scan the images in the specified folder. '''
         liststoreFiles = self.builder.get_object('liststoreFiles')
         liststoreFiles.clear()
