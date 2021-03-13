@@ -49,7 +49,7 @@ import sqlite3
 
 
 
-class CMainWindow():
+class MainWindow():
     '''
     Class to represent the main window for the rename program.
 
@@ -59,11 +59,11 @@ class CMainWindow():
 
 
 
-    def __init__(self, oArgs):
+    def __init__(self, args):
         '''
-        Class constructor for the :py:class:`CMainWindow` class.
+        Class constructor for the :py:class:`MainWindow` class.
 
-        :param object oArgs: The program arguments.
+        :param object args: The program arguments.
         '''
         # Positive to ignore signals.
         self.no_events = 0
@@ -77,17 +77,17 @@ class CMainWindow():
             self.window.connect('destroy', Gtk.main_quit)
 
         dic = {
-            'on_menuFileRefresh_activate'           : self._FileRefresh,
-            'on_menuFileOpen_activate'              : self._FileOpen,
-            'on_menuFileExit_activate'              : self._FileQuit,
-            'on_menuViewOpenFolder_activate'        : self._ViewOpenFolder,
+            'on_menuFileRefresh_activate'           : self._fileRefresh,
+            'on_menuFileOpen_activate'              : self._fileOpen,
+            'on_menuFileExit_activate'              : self._fileQuit,
+            'on_menuViewOpenFolder_activate'        : self._viewOpenFolder,
 
-            'on_treeselectionFiles_changed'         : self._TreeSelectionChanged,
+            'on_treeselectionFiles_changed'         : self._treeSelectionChanged,
         }
         self.builder.connect_signals(dic)
 
         # Get the initial folder.  This is probably from args.
-        self.folder_name = os.path.dirname(os.path.realpath(__file__))
+        self.folderName = os.path.dirname(os.path.realpath(__file__))
         self.scanFolder()
 
         # Move the focus off the toolbar.
@@ -97,68 +97,72 @@ class CMainWindow():
 
 
 
-    def _TreeSelectionChanged(self, oTreeSelection):
+    def _treeSelectionChanged(self, treeSelection):
         ''' Signal handler for the selection on tree changing. '''
-        sSelection = ''
+        selection = ''
 
         liststoreFiles = self.builder.get_object('liststoreFiles')
-        nMode = oTreeSelection.get_mode()
-        if nMode == Gtk.SelectionMode.SINGLE or nMode == Gtk.SelectionMode.BROWSE:
-            nModel, oTreeIter = oTreeSelection.get_selected()
-        elif nMode == Gtk.SelectionMode.MULTIPLE:
-            nModel, oPathList = oTreeSelection.get_selected_rows()
+        mode = treeSelection.get_mode()
+        if mode == Gtk.SelectionMode.SINGLE or mode == Gtk.SelectionMode.BROWSE:
+            model, treeIter = treeSelection.get_selected()
+            fileName = liststoreFiles.get_value(treeIter, 0)
+            selection = fileName
+        elif mode == Gtk.SelectionMode.MULTIPLE:
+            model, pathList = treeSelection.get_selected_rows()
 
-            for oPath in oPathList:
-                oTreeIter = liststoreFiles.get_iter(oPath)
-                sFilename = liststoreFiles.get_value(oTreeIter, 0)
-                if sSelection == '':
-                    sSelection = sFilename
+            for path in pathList:
+                treeIter = liststoreFiles.get_iter(path)
+                fileName = liststoreFiles.get_value(treeIter, 0)
+                if selection == '':
+                    selection = fileName
                 else:
-                    sSelection = '{}\n{}'.format(sSelection, sFilename)
+                    selection = '{}\n{}'.format(selection, fileName)
 
         # Display the filename.
         labelSelection = self.builder.get_object('labelSelection')
-        labelSelection.set_text(sSelection)
+        labelSelection.set_text(selection)
 
 
 
-    def _FileRefresh(self, oWidget):
+    def _fileRefresh(self, widget):
         ''' Signal handler for the 'File' → 'Refresh' menu point. '''
-        self.ScanFolder()
+        self.scanFolder()
 
 
 
-    def _FileOpen(self, oWidget):
+    def _fileOpen(self, widget):
         ''' Signal handler for the 'File' → 'Open' menu point. '''
         # Create a folder chooser dialog.
-        oDialog = Gtk.FileChooserDialog('Select Source Folder', self.window, Gtk.FileChooserAction.SELECT_FOLDER, (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
-        oDialog.set_default_response(Gtk.ResponseType.OK)
+        dialog = Gtk.FileChooserDialog(title = 'Select Source Folder', parent = self.window, action = Gtk.FileChooserAction.SELECT_FOLDER)
+        dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        dialog.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+        dialog.set_default_response(Gtk.ResponseType.OK)
 
         # Set the current source as the initial value for the dialog if not empty.
-        oDialog.set_current_folder(self.folder_name)
+        dialog.set_current_folder(self.folderName)
 
         # Display the file chooser dialog.
-        nResponse = oDialog.run()
-        if nResponse == Gtk.ResponseType.OK:
-            self.folder_name = oDialog.get_filename()
-            self.configuration.SetFolderName(self.folder_name)
-            self.ScanFolder()
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            self.folderName = dialog.get_filename()
+            # self.configuration.SetFolderName(self.folderName)
+            self.scanFolder()
 
         # Close the file chooser dialog.
-        oDialog.destroy()
+        dialog.destroy()
 
 
 
-    def _FileQuit(self, oWidget):
+    def _fileQuit(self, widget):
         ''' Signal handler for the 'File' → 'Quit' menu point. '''
         # Close the main window and hence exit the Gtk loop.
         self.window.destroy()
 
 
 
-    def _ViewOpenFolder(self, oWidget):
+    def _viewOpenFolder(self, widget):
         ''' Signal handler for the 'View' → 'Open Folder' menu point. '''
-        subprocess.Popen(['xdg-open', self.folder_name])
+        subprocess.Popen(['xdg-open', self.folderName])
 
 
 
@@ -167,23 +171,23 @@ class CMainWindow():
         liststoreFiles = self.builder.get_object('liststoreFiles')
         liststoreFiles.clear()
         try:
-            oEverything = os.listdir(self.folder_name)
+            everyThing = os.listdir(self.folderName)
         except:
-            oEverything = []
+            everyThing = []
 
-        oEverything.sort()
+        everyThing.sort()
 
-        nCount = 0
-        for oFile in oEverything:
-            sFilename , sExtension = os.path.splitext(oFile)
-            sExtension = sExtension.lower()
+        count = 0
+        for theFile in everyThing:
+            fileName , extension = os.path.splitext(theFile)
+            extension = extension.lower()
             if True:
-                nCount = nCount+1
-                oIter = liststoreFiles.append()
-                liststoreFiles.set(oIter, 0, oFile)
+                count += 1
+                iterFiles = liststoreFiles.append()
+                liststoreFiles.set(iterFiles, 0, theFile)
 
         treeviewcolumnFilename = self.builder.get_object('treeviewcolumnFilename')
-        treeviewcolumnFilename.set_title('Files ({})'.format(nCount))
+        treeviewcolumnFilename.set_title('Files ({})'.format(count))
 
 
 
@@ -193,8 +197,8 @@ if __name__ == '__main__':
     print('GTK+ Version {}.{}.{} (expecting GTK+3).'.format(Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version()))
 
     # Main GTK loop.
-    oMainWindow = CMainWindow(oArgs)
-    oMainWindow.window.show_all()
+    mainWindow = MainWindow(args)
+    mainWindow.window.show_all()
     Gtk.main()
 
     # A final message
