@@ -42,8 +42,6 @@ import platform
 import subprocess
 import shutil
 import datetime
-# import urllib
-import sqlite3
 
 # Application libraries.
 
