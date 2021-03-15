@@ -21,9 +21,11 @@ if __name__ == '__main__':
 
     if args.install:
         print('Not implemented.')
+        sys.exit(0)
 
     if args.uninstall:
         print('Not implemented.')
+        sys.exit(0)
 
     # Welcome message.
     print('\033[1;31mGTK+ Treeview Test\033[0;m by Steve Walton.')
