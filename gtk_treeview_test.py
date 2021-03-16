@@ -39,6 +39,7 @@ try:
     from gi.repository import GdkPixbuf
 except:
     print("GTK Not Available. ({})".format(__file__))
+    sys.exit(0)
 import os
 import platform
 import subprocess
