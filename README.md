@@ -1,2 +1,2 @@
-# gtk_treeview_test
+# GTK+ Treeview Test
 Example of a treeview control in GTK+.
