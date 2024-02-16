@@ -10,10 +10,11 @@ import sys
 try:
     import gi
     gi.require_version('Gtk', '4.0')
-    from gi.repository import Gtk# , GObject, Gdk
+    gi.require_version('Adw', '1')
+    from gi.repository import Gtk, Adw
     # from gi.repository import GdkPixbuf
 except:
-    print("GTK4 Not Available. ({})".format(__file__))
+    print(f"GTK4 Not Available. ({__file__})")
     sys.exit(0)
 import os
 import subprocess
@@ -24,7 +25,7 @@ import datetime
 
 
 
-class MainWindow():
+class MainWindow(Gtk.ApplicationWindow):
     '''
     Class to represent the main window for the rename program.
 
@@ -34,12 +35,18 @@ class MainWindow():
 
 
 
-    def __init__(self, args):
+    def __init__(self, *args, **kwargs):
         '''
         Class constructor for the :py:class:`MainWindow` class.
 
         :param object args: The program arguments.
         '''
+        super().__init__(*args, **kwargs)
+
+        self.boxMain = Gtk.Box()
+        self.set_child(self.boxMain)
+
+        return
         # Positive to ignore signals.
         self.no_events = 0
 
@@ -148,7 +155,7 @@ class MainWindow():
         ''' Scan the images in the specified folder. '''
         liststoreFiles = self.builder.get_object('liststoreFiles')
         if liststoreFiles is None:
-            print('Error: Can\'t find liststoreFile in builder.')
+            print('Error: Can\'t find liststoreFiles in builder.')
             return
         liststoreFiles.clear()
         try:
@@ -172,10 +179,20 @@ class MainWindow():
 
 
 
-    def runMainLoop(self):
-        ''' Run the Gtk main loop. '''
-        if self.window is None:
-            print('Error: Main window is missing.')
-            return
-        self.window.show_all()
-        Gtk.main()
+class TreeViewApp(Adw.Application):
+
+
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.connect('activate', self.onActivate)
+
+
+
+    def onActivate(self, app):
+        ''' Create the main window. '''
+        self.window = MainWindow(application=app)
+        self.window.present()
+
+
+

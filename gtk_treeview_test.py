@@ -47,8 +47,8 @@ if __name__ == '__main__':
     else:
         import gtk4.main_window
         # Main GTK loop.
-        mainWindow = gtk4.main_window.MainWindow(args)
-        mainWindow.runMainLoop()
+        app = gtk4.main_window.TreeViewApp(application_id='com.example.GtkApplication')
+        app.run(sys.argv)
 
 
     # A final message
