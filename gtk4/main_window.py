@@ -42,9 +42,33 @@ class MainWindow(Gtk.ApplicationWindow):
         :param object args: The program arguments.
         '''
         super().__init__(*args, **kwargs)
+        self.set_title('Treeview GTK4')
+        self.set_default_size(600, 250)
 
-        self.boxMain = Gtk.Box()
+        # Add a vertical box.
+        self.boxMain = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.set_child(self.boxMain)
+
+        # Add a horizontal box.
+        self.boxDetails = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        self.boxMain.append(self.boxDetails)
+
+        # Add a button.
+        self.button = Gtk.Button(label="Hello")
+        self.boxDetails.append(self.button)
+        self.button.connect('clicked', self.helloClicked)
+
+        # Add a label.
+        self.labelSelection = Gtk.Label(label="Goodbye World.")
+        self.boxDetails.append(self.labelSelection)
+
+        # Add a button into the header bar.
+        self.header = Gtk.HeaderBar()
+        self.set_titlebar(self.header)
+
+        self.openButton = Gtk.Button(label='Open')
+        self.openButton.set_icon_name('document-open_symbolic')
+        self.header.pack_start(self.openButton)
 
         return
         # Positive to ignore signals.
@@ -79,6 +103,16 @@ class MainWindow(Gtk.ApplicationWindow):
         print('GTK+ Version {}.{}.{} (expecting GTK+4).'.format(Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version()))
 
 
+
+
+    def helloClicked(self, button):
+        print('Hello World')
+        self.labelSelection.set_label("Hello World.")
+        myText = self.labelSelection.get_label()
+        print(f'{myText=}')
+        self.labelSelection.set_text("Hello")
+        myText = self.labelSelection.get_text()
+        print(f'{myText=}')
 
 
 
