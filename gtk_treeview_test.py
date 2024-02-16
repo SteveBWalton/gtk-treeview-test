@@ -11,8 +11,9 @@ import os
 import platform
 import argparse
 
-# Application librararies,
-import gtk3.main_window
+# Application librararies.
+
+
 
 
 
@@ -22,6 +23,7 @@ if __name__ == '__main__':
     argParse = argparse.ArgumentParser(prog='gtk_treeview_test', description='Display a treeview control.')
     argParse.add_argument('-i', '--install', help='Install the program and desktop link.', action='store_true')
     argParse.add_argument('-u', '--uninstall', help='Uninstall the program.', action='store_true')
+    argParse.add_argument('-3', '--gtk3', help='Use GTK3.', action='store_true')
     args = argParse.parse_args()
 
     if args.install:
@@ -37,9 +39,17 @@ if __name__ == '__main__':
     print('Python Version {}.{}.{} (expecting 3).'.format(sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
     print('Operating System is "{}".  Desktop is "{}".'.format(platform.system(), os.environ.get('DESKTOP_SESSION')))
 
-    # Main GTK loop.
-    mainWindow = gtk3.main_window.MainWindow(args)
-    mainWindow.runMainLoop()
+    if args.gtk3:
+        import gtk3.main_window
+        # Main GTK loop.
+        mainWindow = gtk3.main_window.MainWindow(args)
+        mainWindow.runMainLoop()
+    else:
+        import gtk4.main_window
+        # Main GTK loop.
+        mainWindow = gtk4.main_window.MainWindow(args)
+        mainWindow.runMainLoop()
+
 
     # A final message
     print('Goodbye from the \033[1;31mGTK+ Treeview Test\033[0;m program.')

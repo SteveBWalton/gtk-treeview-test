@@ -2,18 +2,18 @@
 # -*- coding: utf-8 -*-
 
 '''
-Class show to a GTK3+ window with a treeview control.
+Class show to a GTK4+ window with a treeview control.
 '''
 
 import sys
-# Import Gtk3 libraries.
+# Import Gtk4 libraries.
 try:
     import gi
-    gi.require_version('Gtk', '3.0')
-    from gi.repository import Gtk, GObject, Gdk
-    from gi.repository import GdkPixbuf
+    gi.require_version('Gtk', '4.0')
+    from gi.repository import Gtk# , GObject, Gdk
+    # from gi.repository import GdkPixbuf
 except:
-    print("GTK3 Not Available. ({})".format(__file__))
+    print("GTK4 Not Available. ({})".format(__file__))
     sys.exit(0)
 import os
 import subprocess
@@ -45,21 +45,21 @@ class MainWindow():
 
         # The GTK+ builder for the main window.
         self.builder = Gtk.Builder()
-        self.builder.add_from_file('{}/main_window.glade'.format(os.path.dirname(os.path.realpath(__file__))))
+        self.builder.new_from_file(f'{os.path.dirname(os.path.realpath(__file__))}/main_window.ui')
         # The actual GTK+ window.
         self.window = self.builder.get_object('windowMain')
         if self.window:
             self.window.connect('destroy', Gtk.main_quit)
 
-        dic = {
-            'on_menuFileRefresh_activate'           : self._fileRefresh,
-            'on_menuFileOpen_activate'              : self._fileOpen,
-            'on_menuFileExit_activate'              : self._fileQuit,
-            'on_menuViewOpenFolder_activate'        : self._viewOpenFolder,
-
-            'on_treeselectionFiles_changed'         : self._treeSelectionChanged,
-        }
-        self.builder.connect_signals(dic)
+        #dic = {
+        #    'on_menuFileRefresh_activate'           : self._fileRefresh,
+        #    'on_menuFileOpen_activate'              : self._fileOpen,
+        #    'on_menuFileExit_activate'              : self._fileQuit,
+        #    'on_menuViewOpenFolder_activate'        : self._viewOpenFolder,
+        #
+        #    'on_treeselectionFiles_changed'         : self._treeSelectionChanged,
+        #}
+        #self.builder.connect_signals(dic)
 
         # Get the initial folder.  This is probably from args.
         self.folderName = os.path.dirname(os.path.realpath(__file__))
@@ -69,7 +69,7 @@ class MainWindow():
         # self.webview.grab_focus()
 
         # An initial message.
-        print('GTK+ Version {}.{}.{} (expecting GTK+3).'.format(Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version()))
+        print('GTK+ Version {}.{}.{} (expecting GTK+4).'.format(Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version()))
 
 
 
@@ -147,6 +147,9 @@ class MainWindow():
     def scanFolder(self):
         ''' Scan the images in the specified folder. '''
         liststoreFiles = self.builder.get_object('liststoreFiles')
+        if liststoreFiles is None:
+            print('Error: Can\'t find liststoreFile in builder.')
+            return
         liststoreFiles.clear()
         try:
             everyThing = os.listdir(self.folderName)
@@ -171,5 +174,8 @@ class MainWindow():
 
     def runMainLoop(self):
         ''' Run the Gtk main loop. '''
+        if self.window is None:
+            print('Error: Main window is missing.')
+            return
         self.window.show_all()
         Gtk.main()
