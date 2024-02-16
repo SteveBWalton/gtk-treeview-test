@@ -126,39 +126,6 @@ class MainWindow(Gtk.ApplicationWindow):
         self.folderName = os.path.dirname(os.path.realpath(__file__))
         self.scanFolder()
 
-        return
-        # Positive to ignore signals.
-        self.no_events = 0
-
-        # The GTK+ builder for the main window.
-        self.builder = Gtk.Builder()
-        self.builder.new_from_file(f'{os.path.dirname(os.path.realpath(__file__))}/main_window.ui')
-        # The actual GTK+ window.
-        self.window = self.builder.get_object('windowMain')
-        if self.window:
-            self.window.connect('destroy', Gtk.main_quit)
-
-        #dic = {
-        #    'on_menuFileRefresh_activate'           : self._fileRefresh,
-        #    'on_menuFileOpen_activate'              : self._fileOpen,
-        #    'on_menuFileExit_activate'              : self._fileQuit,
-        #    'on_menuViewOpenFolder_activate'        : self._viewOpenFolder,
-        #
-        #    'on_treeselectionFiles_changed'         : self._treeSelectionChanged,
-        #}
-        #self.builder.connect_signals(dic)
-
-        # Get the initial folder.  This is probably from args.
-        self.folderName = os.path.dirname(os.path.realpath(__file__))
-        self.scanFolder()
-
-        # Move the focus off the toolbar.
-        # self.webview.grab_focus()
-
-        # An initial message.
-        print('GTK+ Version {}.{}.{} (expecting GTK+4).'.format(Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version()))
-
-
 
 
     def helloClicked(self, button):
@@ -214,10 +181,10 @@ class MainWindow(Gtk.ApplicationWindow):
     def _fileOpen(self, widget):
         ''' Signal handler for the 'File' → 'Open' menu point. '''
         # Create a folder chooser dialog.
-        # print('_fileOpen() Start')
+        print('_fileOpen() Start')
         dialog = Gtk.FileChooserDialog(title = 'Select Source Folder', transient_for=self, action=Gtk.FileChooserAction.SELECT_FOLDER)
         dialog.add_buttons(("_Cancel"), Gtk.ResponseType.CANCEL, ("_Open"), Gtk.ResponseType.ACCEPT)
-        dialog.connect('response', self.openDialogCallBack)
+        dialog.connect('response', self.fileChooserDialogCallBack)
 
         dialog.set_default_response(Gtk.ResponseType.OK)
         dialog.set_modal(True)
@@ -227,17 +194,17 @@ class MainWindow(Gtk.ApplicationWindow):
 
         # Display the file chooser dialog.
         response = dialog.present()
-        # print(f'{response=}')
+        print(f'{response=}')
 
         # Close the file chooser dialog.
         # dialog.destroy()
-        # print('_fileOpen() Finished')
+        print('_fileOpen() Finished')
 
 
 
-    def openDialogCallBack(self, dialog, result):
+    def fileChooserDialogCallBack(self, dialog, result):
+        ''' Signal handler for the open file chooser dialog responding. '''
         # print(f'{result=}')
-
         if result == Gtk.ResponseType.ACCEPT:
             file = dialog.get_file()
             if file is not None:
