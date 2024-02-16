@@ -11,7 +11,7 @@ try:
     import gi
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Gtk, Adw
+    from gi.repository import Gtk, Adw, Gio, GLib
     # from gi.repository import GdkPixbuf
 except:
     print(f"GTK4 Not Available. ({__file__})")
@@ -45,6 +45,14 @@ class MainWindow(Gtk.ApplicationWindow):
         self.set_title('Treeview GTK4')
         self.set_default_size(600, 250)
 
+        # Add a liststore
+        self.liststoreFiles = Gtk.ListStore(str)
+
+        iterFiles = self.liststoreFiles.append()
+        self.liststoreFiles.set(iterFiles, 0, 'Hello')
+        iterFiles = self.liststoreFiles.append()
+        self.liststoreFiles.set(iterFiles, 0, 'World')
+
         # Add a vertical box.
         self.boxMain = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.set_child(self.boxMain)
@@ -54,21 +62,69 @@ class MainWindow(Gtk.ApplicationWindow):
         self.boxMain.append(self.boxDetails)
 
         # Add a button.
-        self.button = Gtk.Button(label="Hello")
-        self.boxDetails.append(self.button)
-        self.button.connect('clicked', self.helloClicked)
+        #self.button = Gtk.Button(label="Hello")
+        #self.boxDetails.append(self.button)
+        #self.button.connect('clicked', self.helloClicked)
+
+        # Add a TreeView
+        self.treeviewFiles = Gtk.TreeView(model=self.liststoreFiles)
+
+        # Add a column,
+        cell = Gtk.CellRendererText()
+        self.treeviewColumnFileName = Gtk.TreeViewColumn('File', cell, text=0)
+        self.treeviewFiles.append_column(self.treeviewColumnFileName)
+        self.boxDetails.append(self.treeviewFiles)
+
+        # When a row of the treeview is selected send a signal.
+        self.selection = self.treeviewFiles.get_selection()
+        self.selection.connect('changed', self._treeSelectionChanged)
 
         # Add a label.
         self.labelSelection = Gtk.Label(label="Goodbye World.")
         self.boxDetails.append(self.labelSelection)
 
-        # Add a button into the header bar.
+        # Create a header bar.
         self.header = Gtk.HeaderBar()
         self.set_titlebar(self.header)
 
+        # Add a button into the header bar.
         self.openButton = Gtk.Button(label='Open')
         self.openButton.set_icon_name('document-open_symbolic')
+        self.openButton.connect('clicked', self._fileOpen)
         self.header.pack_start(self.openButton)
+
+        # Create a new action.
+        action = Gio.SimpleAction.new('something', None)
+        action.connect('activate', self.simpleAction)
+        self.add_action(action)
+
+        # Create a new menu, containing the simple action.
+        menu = Gio.Menu.new()
+        menu.append('Do Something', 'win.something')
+
+        # Create a popover.
+        self.popover = Gtk.PopoverMenu()
+        self.popover.set_menu_model(menu)
+
+        # Create a menu button.
+        self.hamburger = Gtk.MenuButton()
+        self.hamburger.set_popover(self.popover)
+        self.hamburger.set_icon_name('open-menu-symbolic')
+
+        # Add menu button to the header bar.
+        self.header.pack_start(self.hamburger)
+
+        # Set application name.
+        GLib.set_application_name('Treeview GTK4')
+
+        # Create an action to run a show about dialog function.
+        action = Gio.SimpleAction.new('about', None)
+        action.connect('activate', self.simpleAction)
+        self.add_action(action)
+        menu.append('About', 'win.about')
+
+        self.folderName = os.path.dirname(os.path.realpath(__file__))
+        self.scanFolder()
 
         return
         # Positive to ignore signals.
@@ -116,11 +172,17 @@ class MainWindow(Gtk.ApplicationWindow):
 
 
 
+    def simpleAction(self, action, param):
+        print('Simple Action')
+
+
+
     def _treeSelectionChanged(self, treeSelection):
         ''' Signal handler for the selection on tree changing. '''
         selection = ''
 
-        liststoreFiles = self.builder.get_object('liststoreFiles')
+        # liststoreFiles = self.builder.get_object('liststoreFiles')
+        liststoreFiles = self.liststoreFiles
         mode = treeSelection.get_mode()
         if mode == Gtk.SelectionMode.SINGLE or mode == Gtk.SelectionMode.BROWSE:
             model, treeIter = treeSelection.get_selected()
@@ -138,8 +200,8 @@ class MainWindow(Gtk.ApplicationWindow):
                     selection = '{}\n{}'.format(selection, fileName)
 
         # Display the filename.
-        labelSelection = self.builder.get_object('labelSelection')
-        labelSelection.set_text(selection)
+        # labelSelection = self.builder.get_object('labelSelection')
+        self.labelSelection.set_text(selection)
 
 
 
@@ -152,22 +214,36 @@ class MainWindow(Gtk.ApplicationWindow):
     def _fileOpen(self, widget):
         ''' Signal handler for the 'File' → 'Open' menu point. '''
         # Create a folder chooser dialog.
-        dialog = Gtk.FileChooserDialog(title = 'Select Source Folder', parent = self.window, action = Gtk.FileChooserAction.SELECT_FOLDER)
-        dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        dialog.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+        # print('_fileOpen() Start')
+        dialog = Gtk.FileChooserDialog(title = 'Select Source Folder', transient_for=self, action=Gtk.FileChooserAction.SELECT_FOLDER)
+        dialog.add_buttons(("_Cancel"), Gtk.ResponseType.CANCEL, ("_Open"), Gtk.ResponseType.ACCEPT)
+        dialog.connect('response', self.openDialogCallBack)
+
         dialog.set_default_response(Gtk.ResponseType.OK)
+        dialog.set_modal(True)
 
         # Set the current source as the initial value for the dialog if not empty.
-        dialog.set_current_folder(self.folderName)
+        # dialog.set_current_folder(self.folderName)
 
         # Display the file chooser dialog.
-        response = dialog.run()
-        if response == Gtk.ResponseType.OK:
-            self.folderName = dialog.get_filename()
-            # self.configuration.SetFolderName(self.folderName)
-            self.scanFolder()
+        response = dialog.present()
+        # print(f'{response=}')
 
         # Close the file chooser dialog.
+        # dialog.destroy()
+        # print('_fileOpen() Finished')
+
+
+
+    def openDialogCallBack(self, dialog, result):
+        # print(f'{result=}')
+
+        if result == Gtk.ResponseType.ACCEPT:
+            file = dialog.get_file()
+            if file is not None:
+                self.folderName = file.get_path()
+                self.scanFolder()
+
         dialog.destroy()
 
 
@@ -187,7 +263,8 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def scanFolder(self):
         ''' Scan the images in the specified folder. '''
-        liststoreFiles = self.builder.get_object('liststoreFiles')
+        # liststoreFiles = self.builder.get_object('liststoreFiles')
+        liststoreFiles = self.liststoreFiles
         if liststoreFiles is None:
             print('Error: Can\'t find liststoreFiles in builder.')
             return
@@ -201,15 +278,14 @@ class MainWindow(Gtk.ApplicationWindow):
 
         count = 0
         for theFile in everyThing:
-            fileName , extension = os.path.splitext(theFile)
+            fileName, extension = os.path.splitext(theFile)
             extension = extension.lower()
             if True:
                 count += 1
                 iterFiles = liststoreFiles.append()
                 liststoreFiles.set(iterFiles, 0, theFile)
 
-        treeviewcolumnFilename = self.builder.get_object('treeviewcolumnFilename')
-        treeviewcolumnFilename.set_title('Files ({})'.format(count))
+        self.treeviewColumnFileName.set_title(f'Files ({count})')
 
 
 
@@ -219,7 +295,12 @@ class TreeViewApp(Adw.Application):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        # An initial message.
+        print('GTK+ Version {}.{}.{} (expecting GTK+4).'.format(Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version()))
+
         self.connect('activate', self.onActivate)
+
 
 
 
