@@ -48,11 +48,6 @@ class MainWindow(Gtk.ApplicationWindow):
         # Add a liststore
         self.liststoreFiles = Gtk.ListStore(str)
 
-        iterFiles = self.liststoreFiles.append()
-        self.liststoreFiles.set(iterFiles, 0, 'Hello')
-        iterFiles = self.liststoreFiles.append()
-        self.liststoreFiles.set(iterFiles, 0, 'World')
-
         # Add a vertical box.
         self.boxMain = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.set_child(self.boxMain)
@@ -60,11 +55,6 @@ class MainWindow(Gtk.ApplicationWindow):
         # Add a horizontal box.
         self.boxDetails = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         self.boxMain.append(self.boxDetails)
-
-        # Add a button.
-        #self.button = Gtk.Button(label="Hello")
-        #self.boxDetails.append(self.button)
-        #self.button.connect('clicked', self.helloClicked)
 
         # Add a TreeView
         self.treeviewFiles = Gtk.TreeView(model=self.liststoreFiles)
