@@ -11,7 +11,7 @@ try:
     import gi
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Gtk, Adw, Gio, GLib
+    from gi.repository import Gtk, Gdk, Adw, Gio, GLib
     # from gi.repository import GdkPixbuf
 except:
     print(f"GTK4 Not Available. ({__file__})")
@@ -54,16 +54,24 @@ class MainWindow(Gtk.ApplicationWindow):
 
         # Add a horizontal box.
         self.boxDetails = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        # self.boxDetails.set_css_classes(['border'])
         self.boxMain.append(self.boxDetails)
+
+        # Add a scrolled window.
+        self.scrolledFiles = Gtk.ScrolledWindow()
+        self.scrolledFiles.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
+        self.scrolledFiles.set_css_classes(['border'])
 
         # Add a TreeView
         self.treeviewFiles = Gtk.TreeView(model=self.liststoreFiles)
+        # self.treeviewFiles.set_css_classes(['border'])
 
         # Add a column,
         cell = Gtk.CellRendererText()
         self.treeviewColumnFileName = Gtk.TreeViewColumn('File', cell, text=0)
         self.treeviewFiles.append_column(self.treeviewColumnFileName)
-        self.boxDetails.append(self.treeviewFiles)
+        self.scrolledFiles.set_child(self.treeviewFiles)
+        self.boxDetails.append(self.scrolledFiles)
 
         # When a row of the treeview is selected send a signal.
         self.selection = self.treeviewFiles.get_selection()
@@ -71,6 +79,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
         # Add a label.
         self.labelSelection = Gtk.Label(label="Goodbye World.")
+        self.labelSelection.set_css_classes(['labeltext'])
         self.boxDetails.append(self.labelSelection)
 
         # Create a header bar.
@@ -255,6 +264,10 @@ class TreeViewApp(Adw.Application):
 
         # An initial message.
         print('GTK+ Version {}.{}.{} (expecting GTK+4).'.format(Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version()))
+
+        cssProvider = Gtk.CssProvider()
+        cssProvider.load_from_path('gtk4/style.css')
+        Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
         self.connect('activate', self.onActivate)
 
