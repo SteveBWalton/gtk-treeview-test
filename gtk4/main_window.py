@@ -50,6 +50,14 @@ class MainWindow(Gtk.ApplicationWindow):
 
         # Add a vertical box.
         self.boxMain = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        #self.boxMain.set_spacing(10)
+        #self.boxMain.set_margin_top(10)
+        #self.boxMain.set_margin_bottom(100)
+        #self.boxMain.set_margin_start(10)
+        #self.boxMain.set_margin_end(10)
+        #self.boxMain.set_vexpand(True)
+        self.boxMain.set_halign(Gtk.Align.FILL)
+        self.boxMain.set_valign(Gtk.Align.FILL)
         self.set_child(self.boxMain)
 
         # Add a horizontal box.
@@ -60,10 +68,14 @@ class MainWindow(Gtk.ApplicationWindow):
         # Add a scrolled window.
         self.scrolledFiles = Gtk.ScrolledWindow()
         self.scrolledFiles.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
+        # self.scrolledFiles.set_vexpand(True)
+        #self.scrolledFiles.set_halign(Gtk.Align.FILL)
+        #self.scrolledFiles.set_valign(Gtk.Align.FILL)
         self.scrolledFiles.set_css_classes(['border'])
 
         # Add a TreeView
         self.treeviewFiles = Gtk.TreeView(model=self.liststoreFiles)
+        self.treeviewFiles.set_vexpand(True)
         # self.treeviewFiles.set_css_classes(['border'])
 
         # Add a column,
@@ -79,7 +91,10 @@ class MainWindow(Gtk.ApplicationWindow):
 
         # Add a label.
         self.labelSelection = Gtk.Label(label="Goodbye World.")
-        self.labelSelection.set_css_classes(['labeltext'])
+        self.labelSelection.set_css_classes(['labeltext', 'border'])
+        #self.labelSelection.set_halign(Gtk.Align.FILL)
+        #self.labelSelection.set_valign(Gtk.Align.FILL)
+        self.labelSelection.set_hexpand(True)
         self.boxDetails.append(self.labelSelection)
 
         # Create a header bar.
