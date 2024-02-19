@@ -24,6 +24,7 @@ if __name__ == '__main__':
     argParse.add_argument('-i', '--install', help='Install the program and desktop link.', action='store_true')
     argParse.add_argument('-u', '--uninstall', help='Uninstall the program.', action='store_true')
     argParse.add_argument('-3', '--gtk3', help='Use GTK3.', action='store_true')
+    argParse.add_argument('-4', '--gtk4', help='Use GTK3.', action='store_true')
     args = argParse.parse_args()
 
     if args.install:
@@ -48,7 +49,7 @@ if __name__ == '__main__':
         import gtk4.main_window
         # Main GTK loop.
         app = gtk4.main_window.TreeViewApp(application_id='com.example.GtkApplication')
-        app.run(sys.argv)
+        app.run()
 
 
     # A final message
