@@ -103,7 +103,9 @@ class MainWindow(Gtk.ApplicationWindow):
 
         # Add a button into the header bar.
         self.openButton = Gtk.Button(label='Open')
-        self.openButton.set_icon_name('document-open_symbolic')
+        # Default icons at /usr/share/icons/Adwaita/...
+        self.openButton.set_icon_name('document-open-symbolic')
+        # self.openButton.set_icon_name('folder')
         self.openButton.connect('clicked', self._fileOpen)
         self.header.pack_start(self.openButton)
 
