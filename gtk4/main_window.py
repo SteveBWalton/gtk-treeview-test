@@ -35,12 +35,13 @@ class MainWindow(Gtk.ApplicationWindow):
 
 
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, myArgs, *args, **kwargs):
         '''
         Class constructor for the :py:class:`MainWindow` class.
 
         :param object args: The program arguments.
         '''
+        self.args = myArgs
         super().__init__(*args, **kwargs)
         self.set_title('Treeview GTK4')
         self.set_default_size(600, 250)
@@ -139,6 +140,13 @@ class MainWindow(Gtk.ApplicationWindow):
         self.add_action(action)
         menu.append('About', 'win.about')
 
+        action = Gio.SimpleAction.new('steve', None)
+        action.connect('activate', self.simpleAction)
+        self.add_action(action)
+        menu.append('Steve', 'app.steve')
+
+
+        # Initialise the dialog.
         self.folderName = os.path.dirname(os.path.realpath(__file__))
         self.scanFolder()
 
@@ -276,7 +284,8 @@ class TreeViewApp(Adw.Application):
 
 
 
-    def __init__(self, **kwargs):
+    def __init__(self, myArgs, **kwargs):
+        self.args = myArgs
         super().__init__(**kwargs)
 
         # An initial message.
@@ -293,7 +302,7 @@ class TreeViewApp(Adw.Application):
 
     def onActivate(self, app):
         ''' Create the main window. '''
-        self.window = MainWindow(application=app)
+        self.window = MainWindow(self.args, application=app)
         self.window.present()
 
 
