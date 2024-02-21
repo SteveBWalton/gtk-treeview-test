@@ -74,12 +74,12 @@ class MainWindow(Gtk.ApplicationWindow):
         #self.scrolledFiles.set_valign(Gtk.Align.FILL)
         self.scrolledFiles.set_css_classes(['border'])
 
-        # Add a TreeView
+        # Add a TreeView.
         self.treeviewFiles = Gtk.TreeView(model=self.liststoreFiles)
         self.treeviewFiles.set_vexpand(True)
         # self.treeviewFiles.set_css_classes(['border'])
 
-        # Add a column,
+        # Add a column.
         cell = Gtk.CellRendererText()
         self.treeviewColumnFileName = Gtk.TreeViewColumn('File', cell, text=0)
         self.treeviewFiles.append_column(self.treeviewColumnFileName)
@@ -102,22 +102,19 @@ class MainWindow(Gtk.ApplicationWindow):
         self.header = Gtk.HeaderBar()
         self.set_titlebar(self.header)
 
-        # Add a button into the header bar.
-        self.openButton = Gtk.Button(label='Open')
-        # Default icons at /usr/share/icons/Adwaita/...
-        self.openButton.set_icon_name('document-open-symbolic')
-        # self.openButton.set_icon_name('folder')
-        self.openButton.connect('clicked', self._fileOpen)
-        self.header.pack_start(self.openButton)
 
-        # Create a new action.
+        # Create new actions.
         action = Gio.SimpleAction.new('something', None)
         action.connect('activate', self.simpleAction)
         self.add_action(action)
+        action = Gio.SimpleAction.new('about', None)
+        action.connect('activate', self.actionAbout)
+        self.add_action(action)
 
-        # Create a new menu, containing the simple action.
+        # Create a new menu, containing the simple actions.
         menu = Gio.Menu.new()
         menu.append('Do Something', 'win.something')
+        menu.append('About', 'win.about')
 
         # Create a popover.
         self.popover = Gtk.PopoverMenu()
@@ -134,17 +131,13 @@ class MainWindow(Gtk.ApplicationWindow):
         # Set application name.
         GLib.set_application_name('Treeview GTK4')
 
-        # Create an action to run a show about dialog function.
-        action = Gio.SimpleAction.new('about', None)
-        action.connect('activate', self.simpleAction)
-        self.add_action(action)
-        menu.append('About', 'win.about')
-
-        action = Gio.SimpleAction.new('steve', None)
-        action.connect('activate', self.simpleAction)
-        self.add_action(action)
-        menu.append('Steve', 'app.steve')
-
+        # Add a button into the header bar.
+        self.openButton = Gtk.Button(label='Open')
+        # Default icons at /usr/share/icons/Adwaita/...
+        self.openButton.set_icon_name('document-open-symbolic')
+        # self.openButton.set_icon_name('folder')
+        self.openButton.connect('clicked', self._fileOpen)
+        self.header.pack_start(self.openButton)
 
         # Initialise the dialog.
         self.folderName = os.path.dirname(os.path.realpath(__file__))
@@ -168,6 +161,11 @@ class MainWindow(Gtk.ApplicationWindow):
 
 
 
+    def actionAbout(self, action, param):
+        print('About')
+
+
+
     def _treeSelectionChanged(self, treeSelection):
         ''' Signal handler for the selection on tree changing. '''
         selection = ''
@@ -177,8 +175,9 @@ class MainWindow(Gtk.ApplicationWindow):
         mode = treeSelection.get_mode()
         if mode == Gtk.SelectionMode.SINGLE or mode == Gtk.SelectionMode.BROWSE:
             model, treeIter = treeSelection.get_selected()
-            fileName = liststoreFiles.get_value(treeIter, 0)
-            selection = fileName
+            if treeIter is not None:
+                fileName = liststoreFiles.get_value(treeIter, 0)
+                selection = fileName
         elif mode == Gtk.SelectionMode.MULTIPLE:
             model, pathList = treeSelection.get_selected_rows()
 
