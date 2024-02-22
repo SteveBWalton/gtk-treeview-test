@@ -105,7 +105,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
         # Create new actions.
         action = Gio.SimpleAction.new('something', None)
-        action.connect('activate', self.simpleAction)
+        action.connect('activate', self.actionSomething)
         self.add_action(action)
         action = Gio.SimpleAction.new('about', None)
         action.connect('activate', self.actionAbout)
@@ -156,13 +156,27 @@ class MainWindow(Gtk.ApplicationWindow):
 
 
 
-    def simpleAction(self, action, param):
-        print('Simple Action')
+    def actionSomething(self, action, param):
+        print('Something is done.')
 
 
 
     def actionAbout(self, action, param):
-        print('About')
+        dialog = Adw.AboutWindow(transient_for=self)
+        dialog.set_application_name("GTK TreeView Example")
+        dialog.set_version("1.0")
+        dialog.set_developer_name("Developer")
+        dialog.set_license_type(Gtk.License(Gtk.License.GPL_3_0))
+        dialog.set_comments("An example GTK program.")
+        dialog.set_website("https://docs.gtk.org/gtk4/")
+        dialog.set_issue_url("https://docs.gtk.org/gtk4/")
+        dialog.add_credit_section("Contributors", ["Name1 url", "Name2 url"])
+        dialog.set_translator_credits("Name1 url")
+        dialog.set_copyright("© 2024 Developer")
+        dialog.set_developers(["Developer"])
+        dialog.set_application_icon("com.github.devname.appname") # icon must be uploaded in ~/.local/share/icons or /usr/share/icons
+
+        dialog.set_visible(True)
 
 
 
