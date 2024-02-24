@@ -90,6 +90,28 @@ class MainWindow(Gtk.ApplicationWindow):
         self.selection = self.treeviewFiles.get_selection()
         self.selection.connect('changed', self._treeSelectionChanged)
 
+        # Right click on the treeview show a popup menu.
+        #gestureClick = Gtk.GestureClick(self.treeviewFiles)
+        #gestureClick.button = 3 # Right button.
+        #gestureClick.connect('pressed', self._treeviewRightClick)
+
+        # Create new actions.
+        action = Gio.SimpleAction.new('popup1', None)
+        action.connect('activate', self._actionSomething)
+        self.add_action(action)
+        action = Gio.SimpleAction.new('popup2', None)
+        action.connect('activate', self._actionAbout)
+        self.add_action(action)
+
+        # Create a new menu, containing the simple actions.
+        menu = Gio.Menu.new()
+        menu.append('Popup 1', 'win.popup1')
+        menu.append('Popup 2', 'win.popup2')
+
+        # Create a popover menu.
+        self.popoverTreeview = Gtk.PopoverMenu()
+        self.popoverTreeview.set_menu_model(menu)
+
         # Add a label.
         self.labelSelection = Gtk.Label(label="Goodbye World.")
         self.labelSelection.set_css_classes(['labeltext', 'border'])
@@ -98,17 +120,31 @@ class MainWindow(Gtk.ApplicationWindow):
         self.labelSelection.set_hexpand(True)
         self.boxDetails.append(self.labelSelection)
 
+        # Add a MenuButton.
+        #self.menuButton = Gtk.MenuButton()
+        #self.menuButton.set_icon_name('open-menu-symbolic')
+        # self.menuButton.set_popover(self.popoverTreeview)
+        #self.boxDetails.append(self.menuButton)
+
+        # self.popoverTreeview.set_parent(self.treeviewFiles)
+        self.popoverTreeview.set_parent(self.labelSelection)
+        # self.popoverTreeview.set_parent(self.scrolledFiles)
+
+        gestureClick = Gtk.GestureClick()
+        gestureClick.set_button(3)
+        gestureClick.connect('pressed', self._treeviewFilesRightClick)
+        self.treeviewFiles.add_controller(gestureClick)
+
         # Create a header bar.
         self.header = Gtk.HeaderBar()
         self.set_titlebar(self.header)
 
-
         # Create new actions.
         action = Gio.SimpleAction.new('something', None)
-        action.connect('activate', self.actionSomething)
+        action.connect('activate', self._actionSomething)
         self.add_action(action)
         action = Gio.SimpleAction.new('about', None)
-        action.connect('activate', self.actionAbout)
+        action.connect('activate', self._actionAbout)
         self.add_action(action)
 
         # Create a new menu, containing the simple actions.
@@ -145,23 +181,20 @@ class MainWindow(Gtk.ApplicationWindow):
 
 
 
-    def helloClicked(self, button):
-        print('Hello World')
-        self.labelSelection.set_label("Hello World.")
-        myText = self.labelSelection.get_label()
-        print(f'{myText=}')
-        self.labelSelection.set_text("Hello")
-        myText = self.labelSelection.get_text()
-        print(f'{myText=}')
+    def _treeviewFilesRightClick(self, controller, click_count, x, y):
+        print(f'_treeviewFilesRightClick {x=} {y=}')
+        print(self.popoverTreeview.set_pointing_to(Gdk.Rectangle(0,0,x,y)))
+        self.popoverTreeview.set_position(Gtk.PositionType.RIGHT)
+        self.popoverTreeview.popup()
 
 
 
-    def actionSomething(self, action, param):
+    def _actionSomething(self, action, param):
         print('Something is done.')
 
 
 
-    def actionAbout(self, action, param):
+    def _actionAbout(self, action, param):
         dialog = Adw.AboutWindow(transient_for=self)
         dialog.set_application_name("GTK TreeView Example")
         dialog.set_version("1.0")
