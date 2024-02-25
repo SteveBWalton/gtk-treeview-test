@@ -65,9 +65,6 @@ class MainWindow():
         self.folderName = os.path.dirname(os.path.realpath(__file__))
         self.scanFolder()
 
-        # Move the focus off the toolbar.
-        # self.webview.grab_focus()
-
         # An initial message.
         print('GTK+ Version {}.{}.{} (expecting GTK+3).'.format(Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version()))
 
