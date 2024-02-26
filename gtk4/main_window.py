@@ -30,7 +30,7 @@ class MyFileRow(GObject.GObject):
         super(MyFileRow, self).__init__()
         self.fileName = txt
         self.children = children
-        print(f'{self.fileName=}')
+        # print(f'{self.fileName=}')
 
 
 
@@ -105,13 +105,17 @@ class MainWindow(Gtk.ApplicationWindow):
         self.columnviewFiles = Gtk.ColumnView()
         selection = Gtk.SingleSelection()
         selection.set_model(self.treelistFiles)
+        selection.connect('selection-changed', self.columnviewSelectionChanged)
         self.columnviewFiles.set_model(selection)
         factory = Gtk.SignalListItemFactory()
         factory.connect('setup', self.setupExpanderLabel)
         factory.connect('bind', self.bindMyFileRow)
         column = Gtk.ColumnViewColumn.new("Files", factory)
         self.columnviewFiles.append_column(column)
-        self.boxDetails.append(self.columnviewFiles)
+        scrolledWindow = Gtk.ScrolledWindow()
+        scrolledWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
+        scrolledWindow.set_child(self.columnviewFiles)
+        self.boxDetails.append(scrolledWindow)
 
         # Right click on the treeview show a popup menu.
         #gestureClick = Gtk.GestureClick(self.treeviewFiles)
@@ -274,6 +278,14 @@ class MainWindow(Gtk.ApplicationWindow):
 
 
 
+    def columnviewSelectionChanged(self, selectionModel, position, numItems):
+        ''' Signal handler for the selection on the columnview changing. '''
+        itemSelected = selectionModel.get_selected_item().get_item()
+        self.labelSelection.set_text(itemSelected.fileName)
+
+
+
+
     def _treeSelectionChanged(self, treeSelection):
         ''' Signal handler for the selection on tree changing. '''
         selection = ''
@@ -366,8 +378,10 @@ class MainWindow(Gtk.ApplicationWindow):
         if liststoreFiles is None:
             print('Error: Can\'t find liststoreFiles in builder.')
             return
+
         liststoreFiles.clear()
-        # self.liststoreFiles2.clear()
+        self.liststoreFiles2.remove_all()
+
         try:
             everyThing = os.listdir(self.folderName)
         except:
