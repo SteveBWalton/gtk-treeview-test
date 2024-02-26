@@ -11,7 +11,7 @@ try:
     import gi
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Gtk, Gdk, Adw, Gio, GLib
+    from gi.repository import Gtk, Gdk, Adw, Gio, GLib, GObject
     # from gi.repository import GdkPixbuf
 except:
     print(f"GTK4 Not Available. ({__file__})")
@@ -22,6 +22,15 @@ import shutil
 import datetime
 
 # Application libraries.
+
+
+
+class MyFileRow(GObject.GObject):
+    def __init__(self, txt: str, children=None):
+        super(MyFileRow, self).__init__()
+        self.fileName = txt
+        self.children = children
+        print(f'{self.fileName=}')
 
 
 
@@ -48,6 +57,8 @@ class MainWindow(Gtk.ApplicationWindow):
 
         # Add a liststore
         self.liststoreFiles = Gtk.ListStore(str)
+        self.liststoreFiles2 = Gio.ListStore.new(MyFileRow)
+        self.treelistFiles = Gtk.TreeListModel.new(self.liststoreFiles2, False, False, self.addTreeNode)
 
         # Add a vertical box.
         self.boxMain = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -89,6 +100,18 @@ class MainWindow(Gtk.ApplicationWindow):
         # When a row of the treeview is selected send a signal.
         self.selection = self.treeviewFiles.get_selection()
         self.selection.connect('changed', self._treeSelectionChanged)
+
+        # Add a ColumnView this replaces TreeView controls.
+        self.columnviewFiles = Gtk.ColumnView()
+        selection = Gtk.SingleSelection()
+        selection.set_model(self.treelistFiles)
+        self.columnviewFiles.set_model(selection)
+        factory = Gtk.SignalListItemFactory()
+        factory.connect('setup', self.setupExpanderLabel)
+        factory.connect('bind', self.bindMyFileRow)
+        column = Gtk.ColumnViewColumn.new("Files", factory)
+        self.columnviewFiles.append_column(column)
+        self.boxDetails.append(self.columnviewFiles)
 
         # Right click on the treeview show a popup menu.
         #gestureClick = Gtk.GestureClick(self.treeviewFiles)
@@ -178,6 +201,44 @@ class MainWindow(Gtk.ApplicationWindow):
         # Initialise the dialog.
         self.folderName = os.path.dirname(os.path.realpath(__file__))
         self.scanFolder()
+
+
+
+    def setupExpanderLabel(self, widget, item):
+        label = Gtk.Label()
+        expander = Gtk.TreeExpander.new()
+        expander.set_child(label)
+        item.set_child(expander)
+
+
+
+    def bindMyFileRow(self, widget, item):
+        expander = item.get_child()
+        label = expander.get_child()
+        row = item.get_item()
+        expander.set_list_row(row)
+        obj = row.get_item()
+        label.set_label(obj.fileName)
+
+
+
+    def addTreeNode(self, item):
+        if not (item):
+            print("no item")
+            return model
+        else:
+            if type(item) == Gtk.TreeListRow:
+                item = item.get_item()
+
+                print("converteu")
+                print(item)
+
+            if not item.children:
+                return None
+            store = Gio.ListStore.new(MyFileRow)
+            for child in item.children:
+                store.append(child)
+            return store
 
 
 
@@ -306,6 +367,7 @@ class MainWindow(Gtk.ApplicationWindow):
             print('Error: Can\'t find liststoreFiles in builder.')
             return
         liststoreFiles.clear()
+        # self.liststoreFiles2.clear()
         try:
             everyThing = os.listdir(self.folderName)
         except:
@@ -321,6 +383,11 @@ class MainWindow(Gtk.ApplicationWindow):
                 count += 1
                 iterFiles = liststoreFiles.append()
                 liststoreFiles.set(iterFiles, 0, theFile)
+
+                if count == 1:
+                    self.liststoreFiles2.append(MyFileRow(theFile, [MyFileRow('Example', None)]))
+                else:
+                    self.liststoreFiles2.append(MyFileRow(theFile, None))
 
         self.treeviewColumnFileName.set_title(f'Files ({count})')
 
