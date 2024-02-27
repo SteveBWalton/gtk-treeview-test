@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 '''
-Class show to a GTK4+ window with a treeview control.
+Class show to a GTK4 window with a treeview like control.
+In GTK4, TreeView controls are deprecated.
+Use a ColumnView control with a TreeExpander control.
 '''
 
 import sys
