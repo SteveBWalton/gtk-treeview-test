@@ -57,8 +57,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.set_title('Treeview GTK4')
         self.set_default_size(600, 250)
 
-        # Add a liststore
-        self.liststoreFiles = Gtk.ListStore(str)
+        # Add a liststore.
         self.liststoreFiles2 = Gio.ListStore.new(MyFileRow)
         self.treelistFiles = Gtk.TreeListModel.new(self.liststoreFiles2, False, False, self.addTreeNode)
 
@@ -78,30 +77,6 @@ class MainWindow(Gtk.ApplicationWindow):
         self.boxDetails = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         # self.boxDetails.set_css_classes(['border'])
         self.boxMain.append(self.boxDetails)
-
-        # Add a scrolled window.
-        self.scrolledFiles = Gtk.ScrolledWindow()
-        self.scrolledFiles.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
-        # self.scrolledFiles.set_vexpand(True)
-        #self.scrolledFiles.set_halign(Gtk.Align.FILL)
-        #self.scrolledFiles.set_valign(Gtk.Align.FILL)
-        self.scrolledFiles.set_css_classes(['border'])
-
-        # Add a TreeView.
-        self.treeviewFiles = Gtk.TreeView(model=self.liststoreFiles)
-        self.treeviewFiles.set_vexpand(True)
-        # self.treeviewFiles.set_css_classes(['border'])
-
-        # Add a column.
-        cell = Gtk.CellRendererText()
-        self.treeviewColumnFileName = Gtk.TreeViewColumn('File', cell, text=0)
-        self.treeviewFiles.append_column(self.treeviewColumnFileName)
-        self.scrolledFiles.set_child(self.treeviewFiles)
-        self.boxDetails.append(self.scrolledFiles)
-
-        # When a row of the treeview is selected send a signal.
-        self.selection = self.treeviewFiles.get_selection()
-        self.selection.connect('changed', self._treeSelectionChanged)
 
         # Add a ColumnView this replaces TreeView controls.
         self.columnviewFiles = Gtk.ColumnView()
@@ -162,7 +137,7 @@ class MainWindow(Gtk.ApplicationWindow):
         gestureClick = Gtk.GestureClick()
         gestureClick.set_button(3)
         gestureClick.connect('pressed', self._treeviewFilesRightClick)
-        self.treeviewFiles.add_controller(gestureClick)
+        self.columnviewFiles.add_controller(gestureClick)
 
         # Create a header bar.
         self.header = Gtk.HeaderBar()
@@ -375,13 +350,6 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def scanFolder(self):
         ''' Scan the images in the specified folder. '''
-        # liststoreFiles = self.builder.get_object('liststoreFiles')
-        liststoreFiles = self.liststoreFiles
-        if liststoreFiles is None:
-            print('Error: Can\'t find liststoreFiles in builder.')
-            return
-
-        liststoreFiles.clear()
         self.liststoreFiles2.remove_all()
 
         try:
@@ -397,15 +365,10 @@ class MainWindow(Gtk.ApplicationWindow):
             extension = extension.lower()
             if True:
                 count += 1
-                iterFiles = liststoreFiles.append()
-                liststoreFiles.set(iterFiles, 0, theFile)
-
                 if count == 1:
                     self.liststoreFiles2.append(MyFileRow(theFile, [MyFileRow('Example', None)]))
                 else:
                     self.liststoreFiles2.append(MyFileRow(theFile, None))
-
-        self.treeviewColumnFileName.set_title(f'Files ({count})')
 
 
 
