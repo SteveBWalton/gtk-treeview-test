@@ -80,6 +80,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
         # Add a ColumnView this replaces TreeView controls.
         self.columnviewFiles = Gtk.ColumnView()
+        self.columnviewFiles.set_vexpand(True)
         selection = Gtk.SingleSelection()
         selection.set_model(self.treelistFiles)
         selection.connect('selection-changed', self.columnviewSelectionChanged)
