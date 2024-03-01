@@ -58,8 +58,8 @@ class MainWindow(Gtk.ApplicationWindow):
         self.set_default_size(600, 250)
 
         # Add a liststore.
-        self.liststoreFiles2 = Gio.ListStore.new(MyFileRow)
-        self.treelistFiles = Gtk.TreeListModel.new(self.liststoreFiles2, False, False, self.addTreeNode)
+        self.liststoreFiles = Gio.ListStore.new(MyFileRow)
+        self.treelistFiles = Gtk.TreeListModel.new(self.liststoreFiles, False, False, self.addTreeNode)
 
         # Add a vertical box.
         self.boxMain = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -351,7 +351,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def scanFolder(self):
         ''' Scan the images in the specified folder. '''
-        self.liststoreFiles2.remove_all()
+        self.liststoreFiles.remove_all()
 
         try:
             everyThing = os.listdir(self.folderName)
@@ -367,9 +367,9 @@ class MainWindow(Gtk.ApplicationWindow):
             if True:
                 count += 1
                 if count == 1:
-                    self.liststoreFiles2.append(MyFileRow(theFile, [MyFileRow('Example', None)]))
+                    self.liststoreFiles.append(MyFileRow(theFile, [MyFileRow('Example', None)]))
                 else:
-                    self.liststoreFiles2.append(MyFileRow(theFile, None))
+                    self.liststoreFiles.append(MyFileRow(theFile, None))
 
 
 
