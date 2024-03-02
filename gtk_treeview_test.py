@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Module to a GTK+ window with a treeview control.
+Module to a GTK window with a treeview control.
 '''
 
 # System libraries for the initial phase.
@@ -36,7 +36,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     # Welcome message.
-    print('\033[1;93mGTK+ Treeview Test\033[0;m by Steve Walton.')
+    print('\033[1;93mGTK Treeview Test\033[0;m by Steve Walton.')
     print(f'Python Version {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro} (expecting 3).')
     print(f'Operating System is "{platform.system()}".  Desktop is "{os.environ.get('DESKTOP_SESSION')}".')
 
@@ -53,4 +53,4 @@ if __name__ == '__main__':
 
 
     # A final message
-    print('Goodbye from the \033[1;93mGTK+ Treeview Test\033[0;m program.')
+    print('Goodbye from the \033[1;93mGTK Treeview Test\033[0;m program.')
