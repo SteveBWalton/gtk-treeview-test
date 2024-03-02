@@ -36,9 +36,9 @@ if __name__ == '__main__':
         sys.exit(0)
 
     # Welcome message.
-    print('\033[1;31mGTK+ Treeview Test\033[0;m by Steve Walton.')
-    print('Python Version {}.{}.{} (expecting 3).'.format(sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
-    print('Operating System is "{}".  Desktop is "{}".'.format(platform.system(), os.environ.get('DESKTOP_SESSION')))
+    print('\033[1;93mGTK+ Treeview Test\033[0;m by Steve Walton.')
+    print(f'Python Version {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro} (expecting 3).')
+    print(f'Operating System is "{platform.system()}".  Desktop is "{os.environ.get('DESKTOP_SESSION')}".')
 
     if args.gtk3:
         import gtk3.main_window
@@ -53,4 +53,4 @@ if __name__ == '__main__':
 
 
     # A final message
-    print('Goodbye from the \033[1;31mGTK+ Treeview Test\033[0;m program.')
+    print('Goodbye from the \033[1;93mGTK+ Treeview Test\033[0;m program.')
